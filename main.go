@@ -15,7 +15,7 @@ Security Model:
 */
 package main
 
-import "ykcrypt/cmd"
+import "github.com/logicossoftware/ykcrypt/cmd"
 
 // main is the entry point for the ykcrypt application.
 // It delegates all command handling to the cmd package which uses
