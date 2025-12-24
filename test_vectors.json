@@ -1,0 +1,144 @@
+{
+  "description": "ykcrypt Test Vectors for Interoperability Testing",
+  "version": "1.0.0",
+  "generated": "2025-01-01T00:00:00Z",
+  "vectors": [
+    {
+      "name": "Basic P-256 ChaCha20 Single Recipient",
+      "description": "Simple encryption with P-256 curve and XChaCha20-Poly1305",
+      "format": "YKCRYPT1",
+      "curve": "P-256",
+      "curveID": 1,
+      "cipher": "XChaCha20-Poly1305",
+      "cipherID": 1,
+      "hasPassphrase": false,
+      "slotKey": "0x9d",
+      "plaintext": "SGVsbG8sIFdvcmxkIQ==",
+      "plaintextHex": "48656c6c6f2c20576f726c6421",
+      "notes": "Plaintext is 'Hello, World!' in base64/hex",
+      "keyDerivation": {
+        "sharedSecret": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "salt": "fedcba9876543210fedcba9876543210",
+        "expectedWrapKey": "Derived using HKDF-SHA256 with info 'ykcrypt wrap v1'"
+      }
+    },
+    {
+      "name": "P-384 AES-256-GCM with Passphrase",
+      "description": "Encryption with P-384 curve, AES-256-GCM, and passphrase",
+      "format": "YKCRYPT1",
+      "curve": "P-384",
+      "curveID": 2,
+      "cipher": "AES-256-GCM",
+      "cipherID": 2,
+      "hasPassphrase": true,
+      "slotKey": "0x9d",
+      "passphrase": "test-passphrase-123",
+      "plaintext": "U2VjcmV0IGRhdGEgdGhhdCBtdXN0IGJlIHByb3RlY3RlZA==",
+      "plaintextHex": "536563726574206461746120746861742076d75737420626520706f726f746563746564",
+      "argon2Params": {
+        "time": 3,
+        "memory": 65536,
+        "parallelism": 4,
+        "keyLength": 32
+      },
+      "notes": "Passphrase strengthening uses Argon2id combined with HKDF output via HMAC"
+    },
+    {
+      "name": "Multi-Recipient YKCRYPT2",
+      "description": "Two recipients with different curves",
+      "format": "YKCRYPT2",
+      "cipher": "XChaCha20-Poly1305",
+      "cipherID": 1,
+      "recipients": [
+        {
+          "slotKey": "0x9d",
+          "curve": "P-256",
+          "curveID": 1,
+          "hasPassphrase": false
+        },
+        {
+          "slotKey": "0x9a",
+          "curve": "P-384",
+          "curveID": 2,
+          "hasPassphrase": true,
+          "passphrase": "second-recipient-pass"
+        }
+      ],
+      "plaintext": "TXVsdGktcmVjaXBpZW50IHRlc3QgZGF0YQ==",
+      "notes": "Each recipient has independent key wrapping"
+    },
+    {
+      "name": "Large File Chunking",
+      "description": "Test file larger than chunk size",
+      "format": "YKCRYPT1",
+      "curve": "P-256",
+      "curveID": 1,
+      "cipher": "XChaCha20-Poly1305",
+      "cipherID": 1,
+      "chunkSize": 1048576,
+      "hasPassphrase": false,
+      "notes": "Test with 3MB of random data split into 3 chunks",
+      "chunks": [
+        {
+          "index": 0,
+          "plaintextSize": 1048576,
+          "nonceConstruction": "NoncePrefix[0:16] || BigEndian(0)"
+        },
+        {
+          "index": 1,
+          "plaintextSize": 1048576,
+          "nonceConstruction": "NoncePrefix[0:16] || BigEndian(1)"
+        },
+        {
+          "index": 2,
+          "plaintextSize": 1048576,
+          "nonceConstruction": "NoncePrefix[0:16] || BigEndian(2)"
+        }
+      ]
+    },
+    {
+      "name": "Metadata Preservation",
+      "description": "YKCRYPT2 with authenticated metadata",
+      "format": "YKCRYPT2",
+      "cipher": "XChaCha20-Poly1305",
+      "cipherID": 1,
+      "metadata": {
+        "flags": 7,
+        "filename": "secret-document.txt",
+        "timestamp": 1735689600,
+        "comment": "Confidential - Do not distribute"
+      },
+      "recipients": [
+        {
+          "slotKey": "0x9d",
+          "curve": "P-256",
+          "curveID": 1,
+          "hasPassphrase": false
+        }
+      ],
+      "plaintext": "RG9jdW1lbnQgY29udGVudHM=",
+      "notes": "Metadata is authenticated (in AAD) but not encrypted"
+    }
+  ],
+  "keyDerivationSteps": {
+    "step1": "Perform ECDH: sharedSecret = ECDH(ephemeralPrivate, recipientPublic)",
+    "step2": "Derive base key: baseKey = HKDF-SHA256(sharedSecret, salt, 'ykcrypt wrap v1', 32)",
+    "step3_noPass": "If no passphrase: wrapKey = baseKey",
+    "step3_withPass": "If passphrase: passKey = Argon2id(passphrase, passSalt, t=3, m=64KB, p=4, len=32)",
+    "step4_withPass": "Combine: wrapKey = HMAC-SHA256(passKey, baseKey)"
+  },
+  "chunkNonceConstruction": {
+    "chacha20": {
+      "description": "XChaCha20-Poly1305 uses 24-byte nonces",
+      "format": "NoncePrefix[0:16] || BigEndian64(chunkIndex)"
+    },
+    "aes256gcm": {
+      "description": "AES-256-GCM uses 12-byte nonces",
+      "format": "NoncePrefix[0:4] || BigEndian64(chunkIndex)"
+    }
+  },
+  "aadUsage": {
+    "keyWrapping": "AAD for key wrapping is header prefix up to and including WrapNonce",
+    "chunkEncryption": "AAD for chunk encryption is the full serialized header"
+  }
+}
