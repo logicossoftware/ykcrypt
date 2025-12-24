@@ -1,6 +1,22 @@
 # ykcrypt
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/logicossoftware/ykcrypt.svg)](https://pkg.go.dev/github.com/logicossoftware/ykcrypt)
+[![Go Report Card](https://goreportcard.com/badge/github.com/logicossoftware/ykcrypt)](https://goreportcard.com/report/github.com/logicossoftware/ykcrypt)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/logicossoftware/ykcrypt)](https://go.dev/)
+
 `ykcrypt` is a small Go command-line tool that encrypts/decrypts files using a YubiKey PIV ECDH key agreement key as the hardware-root secret.
+
+## Features
+
+- 🔐 **Hardware-backed encryption** using YubiKey PIV slots
+- 👥 **Multiple recipients** - encrypt for multiple YubiKeys simultaneously
+- 🔑 **Optional passphrase** as second factor (Argon2id)
+- 🔄 **Recipient management** - add/remove recipients without re-encrypting
+- ⚡ **Streaming encryption** - handles large files efficiently
+- 🛡️ **Cipher choice** - XChaCha20-Poly1305 (default) or AES-256-GCM
+- 💾 **Atomic writes** - prevents file corruption on failure
+- 📋 **Clear error messages** with troubleshooting hints
 
 ## Security model (high-level)
 
@@ -216,3 +232,19 @@ Common errors and solutions:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Documentation
+
+- [FORMAT.md](FORMAT.md) - Detailed file format specification
+- [SECURITY.md](SECURITY.md) - Security considerations and implemented features
+- [test_vectors.json](test_vectors.json) - Test vectors for interoperability
+
+## Related Projects
+
+- [piv-go](https://github.com/go-piv/piv-go) - Go library for YubiKey PIV
+- [age](https://github.com/FiloSottile/age) - Modern file encryption tool
+- [sops](https://github.com/getsops/sops) - Secrets management with multiple backends
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

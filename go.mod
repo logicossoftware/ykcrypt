@@ -1,4 +1,4 @@
-module ykcrypt
+module github.com/logicossoftware/ykcrypt
 
 go 1.22
 
